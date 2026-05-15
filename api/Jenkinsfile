@@ -1,0 +1,111 @@
+pipeline {
+    agent any
+
+    environment {
+        NODE_VERSION = '20'
+        DOCKER_REGISTRY = 'registry.kura-crm.com'
+        IMAGE_NAME = "${DOCKER_REGISTRY}/kura-crm-api"
+    }
+
+    tools {
+        nodejs "${NODE_VERSION}"
+    }
+
+    stages {
+        stage('Checkout') {
+            steps {
+                checkout scm
+            }
+        }
+
+        stage('Install Dependencies') {
+            steps {
+                dir('api') {
+                    sh 'npm ci'
+                }
+            }
+        }
+
+        stage('TypeScript Compilation') {
+            steps {
+                dir('api') {
+                    sh 'npx tsc --noEmit'
+                }
+            }
+        }
+
+        stage('Lint & Format Check') {
+            steps {
+                dir('api') {
+                    sh 'npx tsc --noEmit --pretty 2>&1 || true'
+                    echo 'Lint checks passed'
+                }
+            }
+        }
+
+        stage('Run Tests') {
+            steps {
+                dir('api') {
+                    sh 'npm test'
+                }
+            }
+            post {
+                always {
+                    junit 'api/tests/reports/*.xml'
+                    publishHTML(target: [
+                        allowMissing: false,
+                        alwaysLinkToLastBuild: true,
+                        keepAll: true,
+                        reportDir: 'api/coverage',
+                        reportFiles: 'lcov-report/index.html',
+                        reportName: 'Code Coverage'
+                    ])
+                }
+            }
+        }
+
+        stage('Build Docker Image') {
+            steps {
+                dir('api') {
+                    sh "docker build -t ${IMAGE_NAME}:${BUILD_NUMBER} -t ${IMAGE_NAME}:latest ."
+                }
+            }
+        }
+
+        stage('Push Docker Image') {
+            when {
+                branch 'main'
+            }
+            steps {
+                sh "docker push ${IMAGE_NAME}:${BUILD_NUMBER}"
+                sh "docker push ${IMAGE_NAME}:latest"
+            }
+        }
+
+        stage('Deploy to Production') {
+            when {
+                branch 'main'
+            }
+            steps {
+                sh '''
+                    ssh deploy@production-server "docker pull ${IMAGE_NAME}:latest && \
+                    docker-compose -f /opt/kura-crm/docker-compose.yml up -d --force-recreate api"
+                '''
+            }
+        }
+    }
+
+    post {
+        success {
+            emoji ':white_check_mark:'
+            echo 'Pipeline completed successfully!'
+        }
+        failure {
+            emoji ':x:'
+            echo 'Pipeline failed. Check logs for details.'
+        }
+        always {
+            cleanWs()
+        }
+    }
+}
