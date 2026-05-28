@@ -2,6 +2,7 @@ import { Response, NextFunction } from "express";
 import { Contact } from "../models/Contact";
 import { AuthRequest } from "../types";
 import { sendSuccess, sendError, sendPaginated } from "../utils/apiResponse";
+import { WebhookService } from "../services/webhookService";
 
 export class ContactController {
   static async create(req: AuthRequest, res: Response, next: NextFunction): Promise<void> {
@@ -11,6 +12,7 @@ export class ContactController {
         createdBy: req.user?.userId,
       };
       const contact = await Contact.create(contactData);
+      WebhookService.dispatch("contact.created", { contactId: contact.id, email: contact.email, createdBy: req.user?.userId });
       sendSuccess(res, contact, "Contact created successfully.", undefined, 201);
     } catch (err) {
       next(err);
@@ -63,6 +65,7 @@ export class ContactController {
         return;
       }
       const contact = await Contact.findByPk(id);
+      WebhookService.dispatch("contact.updated", { contactId: id, email: contact?.email });
       sendSuccess(res, contact, "Contact updated successfully.");
     } catch (err) {
       next(err);
@@ -72,13 +75,13 @@ export class ContactController {
   static async delete(req: AuthRequest, res: Response, next: NextFunction): Promise<void> {
     try {
       const id = parseInt(req.params.id as string, 10);
-      const deleted = await Contact.destroy({
-        where: { id },
-      });
-      if (!deleted) {
+      const contact = await Contact.findByPk(id);
+      if (!contact) {
         sendError(res, "Contact not found.", 404);
         return;
       }
+      await contact.destroy();
+      WebhookService.dispatch("contact.deleted", { contactId: id, email: contact.email });
       sendSuccess(res, null, "Contact deleted successfully.");
     } catch (err) {
       next(err);

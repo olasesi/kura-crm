@@ -6,6 +6,9 @@ dotenv.config({ path: path.resolve(__dirname, "../../.env") });
 interface EnvConfig {
   NODE_ENV: string;
   PORT: number;
+  MAX_LOGIN_ATTEMPTS: number;
+  LOCKOUT_DURATION_MINUTES: number;
+  MFA_TOKEN_EXPIRES_IN: string;
   DB_HOST: string;
   DB_USER: string;
   DB_PASSWORD: string;
@@ -19,22 +22,34 @@ interface EnvConfig {
   RATE_LIMIT_WINDOW_MS: number;
   RATE_LIMIT_MAX: number;
   LOG_LEVEL: string;
+  REDIS_URL: string;
+  SENTRY_DSN: string;
+  RECAPTCHA_SITE_KEY: string;
+  RECAPTCHA_SECRET_KEY: string;
+  GRAPHQL_PATH: string;
 }
 
 const getEnvVar = (key: string, defaultValue?: string): string => {
-  const value = process.env[key] || defaultValue;
-  if (!value) {
+  const value = process.env[key] !== undefined ? process.env[key] : defaultValue;
+  if (value === undefined || value === null) {
     throw new Error(`Missing required environment variable: ${key}`);
   }
-  return value;
+  return value as string;
+};
+
+const getOptionalEnvVar = (key: string, defaultValue = ""): string => {
+  return process.env[key] !== undefined ? (process.env[key] as string) : defaultValue;
 };
 
 export const env: EnvConfig = {
   NODE_ENV: getEnvVar("NODE_ENV", "development"),
   PORT: parseInt(getEnvVar("PORT", "5000"), 10),
+  MAX_LOGIN_ATTEMPTS: parseInt(getEnvVar("MAX_LOGIN_ATTEMPTS", "5"), 10),
+  LOCKOUT_DURATION_MINUTES: parseInt(getEnvVar("LOCKOUT_DURATION_MINUTES", "15"), 10),
+  MFA_TOKEN_EXPIRES_IN: getEnvVar("MFA_TOKEN_EXPIRES_IN", "5m"),
   DB_HOST: getEnvVar("DB_HOST", "localhost"),
   DB_USER: getEnvVar("DB_USER", "root"),
-  DB_PASSWORD: getEnvVar("DB_PASSWORD", ""),
+  DB_PASSWORD: getOptionalEnvVar("DB_PASSWORD", ""),
   DB_NAME: getEnvVar("DB_NAME", "crm_database"),
   DB_PORT: parseInt(getEnvVar("DB_PORT", "3306"), 10),
   JWT_SECRET: getEnvVar("JWT_SECRET", "your-jwt-secret-change-in-production"),
@@ -45,4 +60,9 @@ export const env: EnvConfig = {
   RATE_LIMIT_WINDOW_MS: parseInt(getEnvVar("RATE_LIMIT_WINDOW_MS", "900000"), 10),
   RATE_LIMIT_MAX: parseInt(getEnvVar("RATE_LIMIT_MAX", "100"), 10),
   LOG_LEVEL: getEnvVar("LOG_LEVEL", "debug"),
+  REDIS_URL: getOptionalEnvVar("REDIS_URL", "redis://localhost:6379"),
+  SENTRY_DSN: getOptionalEnvVar("SENTRY_DSN"),
+  RECAPTCHA_SITE_KEY: getOptionalEnvVar("RECAPTCHA_SITE_KEY"),
+  RECAPTCHA_SECRET_KEY: getOptionalEnvVar("RECAPTCHA_SECRET_KEY"),
+  GRAPHQL_PATH: getEnvVar("GRAPHQL_PATH", "/graphql"),
 };

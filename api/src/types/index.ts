@@ -40,8 +40,24 @@ export interface UserAttributes {
   role: UserRole;
   isActive: boolean;
   refreshToken?: string;
+  failedLoginAttempts: number;
+  lockoutUntil?: Date | null;
+  totpSecret?: string;
+  totpEnabled: boolean;
   createdAt?: Date;
   updatedAt?: Date;
+}
+
+export interface LoginResult {
+  user?: Record<string, unknown>;
+  tokens?: { accessToken: string; refreshToken: string };
+  mfaRequired?: boolean;
+  mfaToken?: string;
+}
+
+export interface MfaPayload {
+  userId: number;
+  type: "mfa";
 }
 
 export interface ContactAttributes {
@@ -55,3 +71,27 @@ export interface ContactAttributes {
   createdAt?: Date;
   updatedAt?: Date;
 }
+
+export interface WebhookAttributes {
+  id: number;
+  userId: number;
+  url: string;
+  events: string;
+  secret?: string;
+  enabled: boolean;
+  createdAt?: Date;
+  updatedAt?: Date;
+}
+
+export const WEBHOOK_EVENTS = [
+  "contact.created",
+  "contact.updated",
+  "contact.deleted",
+  "user.registered",
+  "user.updated",
+  "login.success",
+  "login.failed",
+  "account.locked",
+] as const;
+
+export type WebhookEvent = (typeof WEBHOOK_EVENTS)[number];

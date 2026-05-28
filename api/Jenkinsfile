@@ -82,14 +82,16 @@ pipeline {
             }
         }
 
-        stage('Deploy to Production') {
+        stage('Deploy to Kubernetes') {
             when {
                 branch 'main'
             }
             steps {
                 sh '''
-                    ssh deploy@production-server "docker pull ${IMAGE_NAME}:latest && \
-                    docker-compose -f /opt/kura-crm/docker-compose.yml up -d --force-recreate api"
+                    cd api/k8s
+                    kubectl apply -k .
+                    kubectl set image deployment/kura-crm-api -n kura-crm api=${IMAGE_NAME}:${BUILD_NUMBER}
+                    kubectl rollout status deployment/kura-crm-api -n kura-crm --timeout=5m
                 '''
             }
         }

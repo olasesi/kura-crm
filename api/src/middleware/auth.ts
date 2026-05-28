@@ -27,6 +27,24 @@ export const authenticate = (
   }
 };
 
+export const optionalAuth = (
+  req: AuthRequest,
+  _res: Response,
+  next: NextFunction
+): void => {
+  try {
+    const authHeader = req.headers.authorization;
+    if (authHeader && authHeader.startsWith("Bearer ")) {
+      const token = authHeader.split(" ")[1];
+      const decoded = jwt.verify(token, env.JWT_SECRET) as JwtPayload;
+      req.user = decoded;
+    }
+  } catch {
+    // token is invalid or expired — that's fine for optional auth
+  }
+  next();
+};
+
 export const authorize = (...roles: UserRole[]) => {
   return (req: AuthRequest, res: Response, next: NextFunction): void => {
     if (!req.user) {

@@ -1,0 +1,103 @@
+export const typeDefs = `#graphql
+  type User {
+    id: ID!
+    firstName: String!
+    lastName: String!
+    email: String!
+    role: String!
+    isActive: Boolean!
+    createdAt: String!
+    updatedAt: String!
+    contacts: [Contact!]
+  }
+
+  type Contact {
+    id: ID!
+    firstName: String!
+    lastName: String!
+    email: String!
+    phone: String
+    company: String
+    createdBy: ID
+    creator: User
+    createdAt: String!
+    updatedAt: String!
+  }
+
+  type AuthPayload {
+    user: User!
+    accessToken: String!
+    refreshToken: String!
+  }
+
+  type MfaSetupResult {
+    secret: String!
+    uri: String!
+    qrCode: String!
+  }
+
+  type TokenResult {
+    accessToken: String!
+    refreshToken: String!
+  }
+
+  union LoginResult = AuthPayload | MfaRequired
+
+  type MfaRequired {
+    mfaRequired: Boolean!
+    mfaToken: String!
+  }
+
+  type PaginatedContacts {
+    data: [Contact!]!
+    total: Int!
+    page: Int!
+    totalPages: Int!
+  }
+
+  type PaginatedUsers {
+    data: [User!]!
+    total: Int!
+    page: Int!
+    totalPages: Int!
+  }
+
+  type Webhook {
+    id: ID!
+    userId: ID!
+    url: String!
+    events: [String!]!
+    enabled: Boolean!
+    createdAt: String!
+    updatedAt: String!
+  }
+
+  type Query {
+    me: User
+    user(id: ID!): User
+    users(page: Int, limit: Int): PaginatedUsers!
+    contact(id: ID!): Contact
+    contacts(page: Int, limit: Int): PaginatedContacts!
+    webhooks: [Webhook!]!
+  }
+
+  type Mutation {
+    register(firstName: String!, lastName: String!, email: String!, password: String!, recaptchaToken: String): AuthPayload!
+    login(email: String!, password: String!, recaptchaToken: String): LoginResult!
+    refreshToken(token: String!): AuthPayload!
+    logout: Boolean!
+    mfaSetup: MfaSetupResult!
+    mfaVerify(code: String!): Boolean!
+    mfaDisable(password: String!): Boolean!
+    mfaChallenge(mfaToken: String!, code: String!): TokenResult!
+    createContact(firstName: String!, lastName: String!, email: String!, phone: String, company: String): Contact!
+    updateContact(id: ID!, firstName: String, lastName: String, email: String, phone: String, company: String): Contact!
+    deleteContact(id: ID!): Boolean!
+    updateUser(id: ID!, firstName: String, lastName: String, email: String, role: String): User!
+    deleteUser(id: ID!): Boolean!
+    changePassword(currentPassword: String!, newPassword: String!): Boolean!
+    webhookSubscribe(url: String!, events: [String!]!, secret: String): Webhook!
+    webhookUnsubscribe(id: ID!): Boolean!
+    webhookUpdate(id: ID!, url: String, events: [String!], enabled: Boolean): Webhook!
+  }
+`;

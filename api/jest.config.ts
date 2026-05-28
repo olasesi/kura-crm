@@ -8,6 +8,9 @@ const config: Config = {
   transform: {
     "^.+\\.ts$": "ts-jest",
   },
+  moduleNameMapper: {
+    "^otplib$": "<rootDir>/tests/__mocks__/otplib.js",
+  },
   moduleFileExtensions: ["ts", "js", "json"],
   collectCoverageFrom: ["src/**/*.ts", "!src/**/*.d.ts"],
   coverageDirectory: "coverage",

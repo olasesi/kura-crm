@@ -10,3 +10,6 @@ process.env.JWT_EXPIRES_IN = "15m";
 process.env.JWT_REFRESH_EXPIRES_IN = "7d";
 process.env.DB_NAME = "crm_test";
 process.env.LOG_LEVEL = "silent";
+process.env.MAX_LOGIN_ATTEMPTS = "5";
+process.env.LOCKOUT_DURATION_MINUTES = "15";
+process.env.MFA_TOKEN_EXPIRES_IN = "5m";

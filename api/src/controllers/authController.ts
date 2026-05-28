@@ -2,7 +2,6 @@ import { Response, NextFunction } from "express";
 import { AuthService } from "../services/authService";
 import { AuthRequest } from "../types";
 import { sendSuccess, sendError } from "../utils/apiResponse";
-import { logger } from "../config/logger";
 
 export class AuthController {
   static async register(req: AuthRequest, res: Response, next: NextFunction): Promise<void> {

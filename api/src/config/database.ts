@@ -26,6 +26,8 @@ export const connectDatabase = async (): Promise<void> => {
     logger.info("Database models synchronized.");
   } catch (error) {
     logger.error("Unable to connect to the database:", error);
-    process.exit(1);
+    if (env.NODE_ENV !== "test") {
+      process.exit(1);
+    }
   }
 };

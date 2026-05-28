@@ -48,6 +48,24 @@ export const User = sequelize.define<UserInstance>(
       type: DataTypes.STRING(500),
       allowNull: true,
     },
+    failedLoginAttempts: {
+      type: DataTypes.INTEGER.UNSIGNED,
+      defaultValue: 0,
+      allowNull: false,
+    },
+    lockoutUntil: {
+      type: DataTypes.DATE,
+      allowNull: true,
+    },
+    totpSecret: {
+      type: DataTypes.STRING(255),
+      allowNull: true,
+    },
+    totpEnabled: {
+      type: DataTypes.BOOLEAN,
+      defaultValue: false,
+      allowNull: false,
+    },
   },
   {
     hooks: {
@@ -61,11 +79,11 @@ export const User = sequelize.define<UserInstance>(
       },
     },
     defaultScope: {
-      attributes: { exclude: ["password", "refreshToken"] },
+      attributes: { exclude: ["password", "refreshToken", "totpSecret"] },
     },
     scopes: {
       withCredentials: {
-        attributes: { include: ["password", "refreshToken"] },
+        attributes: { include: ["password", "refreshToken", "totpSecret"] },
       },
     },
   }
