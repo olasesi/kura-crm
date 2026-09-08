@@ -1,0 +1,16 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: kura-crm-web
+  namespace: kura-crm
+  labels:
+    app.kubernetes.io/name: kura-crm-web
+    app.kubernetes.io/part-of: kura-crm
+spec:
+  type: ClusterIP
+  selector:
+    app: kura-crm-web
+  ports:
+    - name: http
+      port: 80
+      targetPort: http

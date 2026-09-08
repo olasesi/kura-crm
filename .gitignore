@@ -1,9 +1,26 @@
+# Node / frontend
 node_modules/
 dist/
-logs/
 coverage/
+.vite/
+*.tsbuildinfo
+
+# Logs
+logs/
+*.log
+
+# Environment files
 .env
 .env.test
-*.log
+.env.development
+.env.local
+.env.*.local
+
+# Testing artifacts
+playwright-report/
+test-results/
+blob-report/
+
+# OS
 .DS_Store
 Thumbs.db
