@@ -3,6 +3,7 @@ import { UserService } from "../services/userService";
 import { MfaService } from "../services/mfaService";
 import { WebhookService } from "../services/webhookService";
 import { SettingService, SETTING_GROUPS } from "../services/settingService";
+import { RoleService } from "../services/roleService";
 import { Contact } from "../models/Contact";
 import { User } from "../models/User";
 import { Webhook } from "../models/Webhook";
@@ -98,6 +99,30 @@ export const resolvers = {
       const settings = await SettingService.getAll(group, context.user.userId);
       return SettingService.toEntries(settings).map((e) => ({ key: e.key, value: serializeValue(e.value) }));
     },
+    roles: async (_: unknown, { page = 1, limit = 20 }: { page?: number; limit?: number }, context: Context) => {
+      if (!context.user) throw new Error("Not authenticated");
+      if (context.user.role !== UserRole.ADMIN && context.user.role !== UserRole.MANAGER) {
+        throw new Error("Insufficient permissions");
+      }
+      const all = await RoleService.list();
+      return {
+        data: all.slice((page - 1) * limit, page * limit),
+        total: all.length,
+        page,
+        totalPages: Math.ceil(all.length / limit),
+      };
+    },
+    role: async (_: unknown, { ref }: { ref: string }, context: Context) => {
+      if (!context.user) throw new Error("Not authenticated");
+      if (context.user.role !== UserRole.ADMIN && context.user.role !== UserRole.MANAGER) {
+        throw new Error("Insufficient permissions");
+      }
+      return RoleService.getByRef(ref);
+    },
+    permissionCatalog: async (_: unknown, __: unknown, context: Context) => {
+      if (!context.user) throw new Error("Not authenticated");
+      return RoleService.listCatalog();
+    },
   },
 
   Mutation: {
@@ -185,13 +210,40 @@ export const resolvers = {
 
     updateUser: async (_: unknown, { id, ...data }: { id: string; firstName?: string; lastName?: string; email?: string; role?: string }, context: Context) => {
       if (!context.user) throw new Error("Not authenticated");
+      if (context.user.role !== UserRole.ADMIN) throw new Error("Insufficient permissions");
       await UserService.update(parseInt(id), data as any);
       return UserService.findById(parseInt(id));
     },
 
+    adminCreateUser: async (_: unknown, args: { firstName: string; lastName: string; email: string; role?: string; roleName?: string; password?: string }, context: Context) => {
+      if (!context.user) throw new Error("Not authenticated");
+      if (context.user.role !== UserRole.ADMIN) throw new Error("Insufficient permissions");
+      return UserService.createUser(args, context.user.userId);
+    },
+
+    setUserActive: async (_: unknown, { id, isActive }: { id: string; isActive: boolean }, context: Context) => {
+      if (!context.user) throw new Error("Not authenticated");
+      if (context.user.role !== UserRole.ADMIN) throw new Error("Insufficient permissions");
+      return UserService.setActive(parseInt(id), isActive, context.user.userId);
+    },
+
+    assignUserRole: async (_: unknown, { id, role }: { id: string; role: string }, context: Context) => {
+      if (!context.user) throw new Error("Not authenticated");
+      if (context.user.role !== UserRole.ADMIN) throw new Error("Insufficient permissions");
+      return UserService.assignRole(parseInt(id), role, context.user.userId);
+    },
+
+    resetUserPassword: async (_: unknown, { id, newPassword }: { id: string; newPassword: string }, context: Context) => {
+      if (!context.user) throw new Error("Not authenticated");
+      if (context.user.role !== UserRole.ADMIN) throw new Error("Insufficient permissions");
+      await UserService.resetPassword(parseInt(id), newPassword, context.user.userId);
+      return true;
+    },
+
     deleteUser: async (_: unknown, { id }: { id: string }, context: Context) => {
       if (!context.user) throw new Error("Not authenticated");
-      await UserService.delete(parseInt(id));
+      if (context.user.role !== UserRole.ADMIN) throw new Error("Insufficient permissions");
+      await UserService.delete(parseInt(id), context.user.userId);
       return true;
     },
 
@@ -246,6 +298,25 @@ export const resolvers = {
       if (!context.user) throw new Error("Not authenticated");
       if (context.user.role !== UserRole.ADMIN) throw new Error("Insufficient permissions");
       await SettingService.reset(group, context.user.userId);
+      return true;
+    },
+
+    createRole: async (_: unknown, args: { name: string; description?: string; permissions: string[]; isActive?: boolean }, context: Context) => {
+      if (!context.user) throw new Error("Not authenticated");
+      if (context.user.role !== UserRole.ADMIN) throw new Error("Insufficient permissions");
+      return RoleService.create({ ...args, isActive: args.isActive ?? true }, context.user.userId);
+    },
+
+    updateRole: async (_: unknown, args: { ref: string; description?: string; permissions?: string[]; isActive?: boolean }, context: Context) => {
+      if (!context.user) throw new Error("Not authenticated");
+      if (context.user.role !== UserRole.ADMIN) throw new Error("Insufficient permissions");
+      return RoleService.update(args.ref, args, context.user.userId);
+    },
+
+    deleteRole: async (_: unknown, { ref }: { ref: string }, context: Context) => {
+      if (!context.user) throw new Error("Not authenticated");
+      if (context.user.role !== UserRole.ADMIN) throw new Error("Insufficient permissions");
+      await RoleService.remove(ref, context.user.userId);
       return true;
     },
   },

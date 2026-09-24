@@ -38,6 +38,7 @@ export interface UserAttributes {
   email: string;
   password: string;
   role: UserRole;
+  roleId?: number;
   isActive: boolean;
   refreshToken?: string;
   failedLoginAttempts: number;
@@ -98,12 +99,63 @@ export interface SettingEntry {
   value: unknown;
 }
 
+export const PERMISSION_CATALOG = {
+  users: ["users:read", "users:write", "users:delete"],
+  roles: ["roles:read", "roles:write", "roles:delete"],
+  contacts: ["contacts:read", "contacts:write", "contacts:delete"],
+  settings: ["settings:read", "settings:write"],
+  webhooks: ["webhooks:read", "webhooks:write"],
+  reports: ["reports:read", "reports:write"],
+  security: ["security:manage"],
+  finance: ["finance:read", "finance:write"],
+  payroll: ["payroll:read", "payroll:write"],
+  attendance: ["attendance:read", "attendance:write"],
+  leave: ["leave:read", "leave:write"],
+  project: ["project:read", "project:write"],
+  task: ["task:read", "task:write"],
+} as const;
+
+export type PermissionKey = (typeof PERMISSION_CATALOG)[keyof typeof PERMISSION_CATALOG][number];
+
+export interface PermissionGroup {
+  module: string;
+  permissions: PermissionKey[];
+}
+
+export interface RoleAttributes {
+  id: number;
+  name: string;
+  description: string;
+  permissions: string;
+  isSystem: boolean;
+  isActive: boolean;
+  createdAt?: Date;
+  updatedAt?: Date;
+}
+
+export interface RoleEntry {
+  id?: number;
+  name: string;
+  description: string;
+  permissions: PermissionKey[];
+  isSystem: boolean;
+  isActive: boolean;
+  createdAt?: string;
+  updatedAt?: string;
+}
+
 export const WEBHOOK_EVENTS = [
   "contact.created",
   "contact.updated",
   "contact.deleted",
   "user.registered",
   "user.updated",
+  "user.created",
+  "user.deleted",
+  "user.role_changed",
+  "role.created",
+  "role.updated",
+  "role.deleted",
   "login.success",
   "login.failed",
   "account.locked",

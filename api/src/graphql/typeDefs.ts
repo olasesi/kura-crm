@@ -89,6 +89,30 @@ export const typeDefs = `#graphql
     value: String!
   }
 
+  type Role {
+    id: ID
+    name: String!
+    description: String!
+    permissions: [String!]!
+    isSystem: Boolean!
+    isActive: Boolean!
+    createdAt: String
+    updatedAt: String
+  }
+
+  type PermissionModule {
+    module: String!
+    label: String!
+    permissions: [String!]!
+  }
+
+  type PaginatedRoles {
+    data: [Role!]!
+    total: Int!
+    page: Int!
+    totalPages: Int!
+  }
+
   type Query {
     me: User
     user(id: ID!): User
@@ -99,6 +123,9 @@ export const typeDefs = `#graphql
     settingGroups: [SettingGroupMeta!]!
     settings(group: String!): [SettingEntry!]!
     mySettings(group: String!): [SettingEntry!]!
+    roles(page: Int, limit: Int): PaginatedRoles!
+    role(ref: String!): Role
+    permissionCatalog: [PermissionModule!]!
   }
 
   type Mutation {
@@ -113,7 +140,11 @@ export const typeDefs = `#graphql
     createContact(firstName: String!, lastName: String!, email: String!, phone: String, company: String): Contact!
     updateContact(id: ID!, firstName: String, lastName: String, email: String, phone: String, company: String): Contact!
     deleteContact(id: ID!): Boolean!
+    adminCreateUser(firstName: String!, lastName: String!, email: String!, role: String, roleName: String, password: String): User!
     updateUser(id: ID!, firstName: String, lastName: String, email: String, role: String): User!
+    setUserActive(id: ID!, isActive: Boolean!): User!
+    assignUserRole(id: ID!, role: String!): User!
+    resetUserPassword(id: ID!, newPassword: String!): Boolean!
     deleteUser(id: ID!): Boolean!
     changePassword(currentPassword: String!, newPassword: String!): Boolean!
     webhookSubscribe(url: String!, events: [String!]!, secret: String): Webhook!
@@ -122,5 +153,8 @@ export const typeDefs = `#graphql
     updateSettings(group: String!, input: [SettingInput!]!): [SettingEntry!]!
     updateMySettings(group: String!, input: [SettingInput!]!): [SettingEntry!]!
     resetSettings(group: String!): Boolean!
+    createRole(name: String!, description: String, permissions: [String!]!, isActive: Boolean): Role!
+    updateRole(ref: String!, description: String, permissions: [String!], isActive: Boolean): Role!
+    deleteRole(ref: String!): Boolean!
   }
 `;

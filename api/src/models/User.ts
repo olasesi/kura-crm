@@ -40,6 +40,11 @@ export const User = sequelize.define<UserInstance>(
       defaultValue: UserRole.USER,
       allowNull: false,
     },
+    roleId: {
+      type: DataTypes.INTEGER.UNSIGNED,
+      allowNull: true,
+      references: { model: "roles", key: "id" },
+    },
     isActive: {
       type: DataTypes.BOOLEAN,
       defaultValue: true,

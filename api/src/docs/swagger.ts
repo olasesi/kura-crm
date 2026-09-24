@@ -7,7 +7,7 @@ const options: swaggerJsdoc.Options = {
       title: "Kura CRM API",
       version: "1.0.0",
       description:
-        "Enterprise-grade CRM API with authentication, user management, contact management, webhooks, " +
+        "Enterprise-grade CRM API with authentication, user management & RBAC roles, contact management, webhooks, " +
         "GraphQL, and a full settings engine (company, app, notification, currency, theme, security, and more).",
       contact: {
         name: "API Support",
@@ -82,6 +82,30 @@ const options: swaggerJsdoc.Options = {
             description: { type: "string" },
             scope: { type: "string", enum: ["global", "user", "both"] },
             sensitive: { type: "boolean" },
+          },
+        },
+        Role: {
+          type: "object",
+          properties: {
+            id: { type: "integer" },
+            name: { type: "string", description: "Role slug, e.g. admin, manager, support_lead" },
+            description: { type: "string" },
+            permissions: {
+              type: "array",
+              items: { type: "string", description: "Permission key, e.g. users:write" },
+            },
+            isSystem: { type: "boolean", description: "Built-in roles cannot be renamed/deleted" },
+            isActive: { type: "boolean" },
+            createdAt: { type: "string", format: "date-time" },
+            updatedAt: { type: "string", format: "date-time" },
+          },
+        },
+        PermissionModule: {
+          type: "object",
+          properties: {
+            module: { type: "string" },
+            label: { type: "string" },
+            permissions: { type: "array", items: { type: "string" } },
           },
         },
       },

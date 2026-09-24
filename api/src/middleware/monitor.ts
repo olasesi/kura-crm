@@ -40,6 +40,27 @@ export const settingsReadsTotal = new client.Counter({
   registers: [register],
 });
 
+export const roleUpdatesTotal = new client.Counter({
+  name: "role_updates_total",
+  help: "Total number of role operations",
+  labelNames: ["action"],
+  registers: [register],
+});
+
+export const userRoleChangesTotal = new client.Counter({
+  name: "user_role_changes_total",
+  help: "Total number of user role changes",
+  labelNames: ["role"],
+  registers: [register],
+});
+
+export const userManagementTotal = new client.Counter({
+  name: "user_management_total",
+  help: "Total number of user management operations",
+  labelNames: ["action"],
+  registers: [register],
+});
+
 export const monitorMiddleware = (req: Request, res: Response, next: NextFunction): void => {
   const start = Date.now();
 

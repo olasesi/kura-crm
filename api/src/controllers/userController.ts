@@ -38,8 +38,74 @@ export class UserController {
   static async delete(req: AuthRequest, res: Response, next: NextFunction): Promise<void> {
     try {
       const id = parseInt(req.params.id as string, 10);
-      await UserService.delete(id);
+      if (!req.user) {
+        sendError(res, "Not authenticated.", 401);
+        return;
+      }
+      await UserService.delete(id, req.user.userId);
       sendSuccess(res, null, "User deleted successfully.");
+    } catch (err) {
+      next(err);
+    }
+  }
+
+  static async create(req: AuthRequest, res: Response, next: NextFunction): Promise<void> {
+    try {
+      if (!req.user) {
+        sendError(res, "Not authenticated.", 401);
+        return;
+      }
+      const user = await UserService.createUser(req.body, req.user.userId);
+      sendSuccess(res, user, "User created successfully.", undefined, 201);
+    } catch (err) {
+      next(err);
+    }
+  }
+
+  static async setActive(req: AuthRequest, res: Response, next: NextFunction): Promise<void> {
+    try {
+      if (!req.user) {
+        sendError(res, "Not authenticated.", 401);
+        return;
+      }
+      const id = parseInt(req.params.id as string, 10);
+      const isActive = req.body.isActive === true;
+      const user = await UserService.setActive(id, isActive, req.user.userId);
+      sendSuccess(res, user, isActive ? "User activated." : "User deactivated.");
+    } catch (err) {
+      next(err);
+    }
+  }
+
+  static async assignRole(req: AuthRequest, res: Response, next: NextFunction): Promise<void> {
+    try {
+      if (!req.user) {
+        sendError(res, "Not authenticated.", 401);
+        return;
+      }
+      const id = parseInt(req.params.id as string, 10);
+      const roleRef = (req.body.role || req.body.roleName || req.params.role) as string;
+      if (!roleRef) {
+        sendError(res, "role is required.", 400);
+        return;
+      }
+      const user = await UserService.assignRole(id, roleRef, req.user.userId);
+      sendSuccess(res, user, "User role updated.");
+    } catch (err) {
+      next(err);
+    }
+  }
+
+  static async resetPassword(req: AuthRequest, res: Response, next: NextFunction): Promise<void> {
+    try {
+      if (!req.user) {
+        sendError(res, "Not authenticated.", 401);
+        return;
+      }
+      const id = parseInt(req.params.id as string, 10);
+      const { newPassword } = req.body;
+      await UserService.resetPassword(id, newPassword, req.user.userId);
+      sendSuccess(res, null, "User password reset.");
     } catch (err) {
       next(err);
     }
