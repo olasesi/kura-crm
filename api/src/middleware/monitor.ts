@@ -26,6 +26,20 @@ export const activeUsers = new client.Gauge({
   registers: [register],
 });
 
+export const settingsUpdatesTotal = new client.Counter({
+  name: "settings_updates_total",
+  help: "Total number of settings update operations",
+  labelNames: ["group"],
+  registers: [register],
+});
+
+export const settingsReadsTotal = new client.Counter({
+  name: "settings_reads_total",
+  help: "Total number of settings read operations",
+  labelNames: ["group", "cache"],
+  registers: [register],
+});
+
 export const monitorMiddleware = (req: Request, res: Response, next: NextFunction): void => {
   const start = Date.now();
 

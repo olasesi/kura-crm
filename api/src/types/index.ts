@@ -83,6 +83,21 @@ export interface WebhookAttributes {
   updatedAt?: Date;
 }
 
+export interface SettingAttributes {
+  id: number;
+  group: string;
+  key: string;
+  value: string;
+  userId: number;
+  createdAt?: Date;
+  updatedAt?: Date;
+}
+
+export interface SettingEntry {
+  key: string;
+  value: unknown;
+}
+
 export const WEBHOOK_EVENTS = [
   "contact.created",
   "contact.updated",
@@ -92,6 +107,8 @@ export const WEBHOOK_EVENTS = [
   "login.success",
   "login.failed",
   "account.locked",
+  "setting.updated",
+  "setting.deleted",
 ] as const;
 
 export type WebhookEvent = (typeof WEBHOOK_EVENTS)[number];

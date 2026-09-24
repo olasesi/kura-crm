@@ -2,16 +2,31 @@ import { AuthService } from "../services/authService";
 import { UserService } from "../services/userService";
 import { MfaService } from "../services/mfaService";
 import { WebhookService } from "../services/webhookService";
+import { SettingService, SETTING_GROUPS } from "../services/settingService";
 import { Contact } from "../models/Contact";
 import { User } from "../models/User";
 import { Webhook } from "../models/Webhook";
-import { JwtPayload } from "../types";
+import { JwtPayload, UserRole } from "../types";
 import { verifyRecaptcha } from "../security/recaptcha";
 import { logger } from "../config/logger";
 
 interface Context {
   user?: JwtPayload;
 }
+
+const serializeValue = (value: unknown): string | null => {
+  if (value === null || value === undefined) return null;
+  if (typeof value === "string") return value;
+  return JSON.stringify(value);
+};
+
+const deserializeValue = (raw: string): unknown => {
+  try {
+    return JSON.parse(raw);
+  } catch {
+    return raw;
+  }
+};
 
 export const resolvers = {
   LoginResult: {
@@ -65,6 +80,23 @@ export const resolvers = {
     webhooks: async (_: unknown, __: unknown, context: Context) => {
       if (!context.user) throw new Error("Not authenticated");
       return WebhookService.list(context.user.userId);
+    },
+    settingGroups: async () => {
+      return SettingService.listGroups();
+    },
+    settings: async (_: unknown, { group }: { group: string }, context: Context) => {
+      if (!context.user) throw new Error("Not authenticated");
+      const isAdmin = context.user.role === UserRole.ADMIN;
+      const meta = SETTING_GROUPS[group];
+      if (meta?.sensitive && !isAdmin) throw new Error("Insufficient permissions");
+      const settings = await SettingService.getAll(group);
+      const redacted = SettingService.redact(settings, isAdmin, meta);
+      return SettingService.toEntries(redacted).map((e) => ({ key: e.key, value: serializeValue(e.value) }));
+    },
+    mySettings: async (_: unknown, { group }: { group: string }, context: Context) => {
+      if (!context.user) throw new Error("Not authenticated");
+      const settings = await SettingService.getAll(group, context.user.userId);
+      return SettingService.toEntries(settings).map((e) => ({ key: e.key, value: serializeValue(e.value) }));
     },
   },
 
@@ -183,6 +215,38 @@ export const resolvers = {
     webhookUpdate: async (_: unknown, args: { id: string; url?: string; events?: string[]; enabled?: boolean }, context: Context) => {
       if (!context.user) throw new Error("Not authenticated");
       return WebhookService.update(context.user.userId, parseInt(args.id), args as any);
+    },
+
+    updateSettings: async (_: unknown, args: { group: string; input: Array<{ key: string; value: string }> }, context: Context) => {
+      if (!context.user) throw new Error("Not authenticated");
+      if (context.user.role !== UserRole.ADMIN) throw new Error("Insufficient permissions");
+      const data: Record<string, unknown> = {};
+      for (const entry of args.input) {
+        data[entry.key] = deserializeValue(entry.value);
+      }
+      const settings = await SettingService.update(args.group, data, context.user.userId);
+      return SettingService.toEntries(settings).map((e) => ({ key: e.key, value: serializeValue(e.value) }));
+    },
+
+    updateMySettings: async (_: unknown, args: { group: string; input: Array<{ key: string; value: string }> }, context: Context) => {
+      if (!context.user) throw new Error("Not authenticated");
+      const meta = SETTING_GROUPS[args.group];
+      if (meta?.scope === "global") {
+        throw new Error(`The "${args.group}" group is company-level and can only be updated by an admin.`);
+      }
+      const data: Record<string, unknown> = {};
+      for (const entry of args.input) {
+        data[entry.key] = deserializeValue(entry.value);
+      }
+      const settings = await SettingService.update(args.group, data, context.user.userId, context.user.userId);
+      return SettingService.toEntries(settings).map((e) => ({ key: e.key, value: serializeValue(e.value) }));
+    },
+
+    resetSettings: async (_: unknown, { group }: { group: string }, context: Context) => {
+      if (!context.user) throw new Error("Not authenticated");
+      if (context.user.role !== UserRole.ADMIN) throw new Error("Insufficient permissions");
+      await SettingService.reset(group, context.user.userId);
+      return true;
     },
   },
 

@@ -6,7 +6,9 @@ const options: swaggerJsdoc.Options = {
     info: {
       title: "Kura CRM API",
       version: "1.0.0",
-      description: "Enterprise-grade CRM API with authentication, user management, and contact management.",
+      description:
+        "Enterprise-grade CRM API with authentication, user management, contact management, webhooks, " +
+        "GraphQL, and a full settings engine (company, app, notification, currency, theme, security, and more).",
       contact: {
         name: "API Support",
         email: "support@kura-crm.com",
@@ -59,6 +61,27 @@ const options: swaggerJsdoc.Options = {
             data: { type: "object" },
             message: { type: "string" },
             error: { type: "string" },
+          },
+        },
+        Setting: {
+          type: "object",
+          properties: {
+            id: { type: "integer" },
+            group: { type: "string" },
+            key: { type: "string" },
+            value: { type: "string", description: "JSON-encoded value" },
+            userId: { type: "integer", description: "0 for global settings, otherwise the owning user" },
+            createdAt: { type: "string", format: "date-time" },
+            updatedAt: { type: "string", format: "date-time" },
+          },
+        },
+        SettingGroupMeta: {
+          type: "object",
+          properties: {
+            group: { type: "string" },
+            description: { type: "string" },
+            scope: { type: "string", enum: ["global", "user", "both"] },
+            sensitive: { type: "boolean" },
           },
         },
       },

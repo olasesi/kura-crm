@@ -72,6 +72,23 @@ export const typeDefs = `#graphql
     updatedAt: String!
   }
 
+  type SettingEntry {
+    key: String!
+    value: String
+  }
+
+  type SettingGroupMeta {
+    group: String!
+    description: String!
+    scope: String!
+    sensitive: Boolean!
+  }
+
+  input SettingInput {
+    key: String!
+    value: String!
+  }
+
   type Query {
     me: User
     user(id: ID!): User
@@ -79,6 +96,9 @@ export const typeDefs = `#graphql
     contact(id: ID!): Contact
     contacts(page: Int, limit: Int): PaginatedContacts!
     webhooks: [Webhook!]!
+    settingGroups: [SettingGroupMeta!]!
+    settings(group: String!): [SettingEntry!]!
+    mySettings(group: String!): [SettingEntry!]!
   }
 
   type Mutation {
@@ -99,5 +119,8 @@ export const typeDefs = `#graphql
     webhookSubscribe(url: String!, events: [String!]!, secret: String): Webhook!
     webhookUnsubscribe(id: ID!): Boolean!
     webhookUpdate(id: ID!, url: String, events: [String!], enabled: Boolean): Webhook!
+    updateSettings(group: String!, input: [SettingInput!]!): [SettingEntry!]!
+    updateMySettings(group: String!, input: [SettingInput!]!): [SettingEntry!]!
+    resetSettings(group: String!): Boolean!
   }
 `;
