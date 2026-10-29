@@ -13,6 +13,62 @@ Browser ──► nginx (CDN cacheable static assets + reverse proxy)
               └── /health     → kura-crm-api:5000
 ```
 
+## Frontend feature architecture
+
+### Module registry
+
+The commercial suite is generated from a single schema-driven registry rather than one bespoke
+page per feature. Each module is declared once in `src/modules/catalog/*.ts` as a `ModuleDef`
+(id, name, group, kind, icon, description, field schema, deterministic seed names, optional
+report metric). `src/modules/registry.ts` merges the catalogs, orders navigation groups and
+enforces group-level access so no module is ever listed twice.
+
+- **98 modules** across 20 groups — see [MODULES.md](./MODULES.md).
+- `kind: "crud"` renders `ModulePage` (search, filter, sort, pagination, table/card views,
+  create/edit/delete, bulk delete, CSV export, reset demo data).
+- `kind: "report"` renders the shared `ReportPage`, driven by `reportMetric`.
+- `kind: "special"` dispatches to a dedicated screen through `SpecialPage`.
+
+`src/app/ModuleRoute.tsx` resolves `/app/:moduleId`, handles unknown modules and access-denied
+states, and picks the correct renderer. Routing lives under `/app` inside a protected `AppShell`;
+`/dashboard` redirects to `/app/dashboard` for backwards compatibility.
+
+### Data layer
+
+`src/modules/repository.ts` is a small, swappable repository. It seeds deterministic demo records
+from each module schema, persists them to `localStorage`, and notifies subscribers per module.
+Components read data through `useModuleRecords` (backed by `useSyncExternalStore`), so a write
+refreshes only the widgets and pages that consume that module. Replacing the repository with API
+calls does not require touching page components.
+
+### Dashboard engine
+
+`src/features/dashboard/` builds role-aware dashboards from 21 widget definitions across seven
+roles (`admin`, `manager`, `sales`, `finance`, `hr`, `support`, `user`) and four layout variants
+(`role`, `executive`, `advanced`, `private`).
+
+- Widgets are dragged with `@dnd-kit`; order and hidden state persist per user and variant at
+  `kura-crm.dashboard.<userId>.<variant>`.
+- Widget data comes from the module repository, so dashboards and module pages stay in sync.
+- Three dashboard designs (`studio`, `compact`, `analytics`) and six accents are applied through
+  CSS variables.
+
+### Internationalisation and theming
+
+- `src/i18n/I18nProvider.tsx` provides a dependency-free translator with English, French,
+  Spanish and Swahili dictionaries. Missing keys fall back to English, then to the caller's
+  fallback string.
+- `src/theme/ThemeProvider.tsx` owns light/dark mode, accent and dashboard design, writes
+  `data-*` attributes to `<html>` and persists the selection in `localStorage`.
+
+### Styling
+
+Production styling lives in `src/styles/` as external BEM CSS imported by `index.css`: design
+tokens, light/dark themes, layout, dashboard, module, special-page and component styles
+(`button`, `form`, `card`, `table`, `feedback`). Tailwind is only used for incidental utility
+classes; new UI should follow the existing BEM blocks and design tokens rather than adding
+utility-heavy markup.
+
 ## Scaling
 
 - **Route-level code splitting** — every page is `React.lazy()`-loaded and Vite emits vendor chunks (`react`, `data`, `forms`, `utils`), so only the code the user needs is downloaded.

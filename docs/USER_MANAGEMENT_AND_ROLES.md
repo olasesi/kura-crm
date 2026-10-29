@@ -49,21 +49,21 @@ Assignment semantics: `role: "manager"` sets `role=manager, roleId=null`;
 
 `PERMISSION_CATALOG` (`api/src/types/index.ts`) defines 13 modules and 25 keys:
 
-| Module      | Keys                                            |
-| ----------- | ----------------------------------------------- |
-| `users`     | `users:read`, `users:write`, `users:delete`     |
-| `roles`     | `roles:read`, `roles:write`, `roles:delete`     |
-| `contacts`  | `contacts:read`, `contacts:write`, `contacts:delete` |
-| `settings`  | `settings:read`, `settings:write`               |
-| `webhooks`  | `webhooks:read`, `webhooks:write`               |
-| `reports`   | `reports:read`, `reports:write`                 |
-| `security`  | `security:manage`                               |
-| `finance`   | `finance:read`, `finance:write`                 |
-| `payroll`   | `payroll:read`, `payroll:write`                 |
-| `attendance`| `attendance:read`, `attendance:write`           |
-| `leave`     | `leave:read`, `leave:write`                     |
-| `project`   | `project:read`, `project:write`                 |
-| `task`      | `task:read`, `task:write`                       |
+| Module       | Keys                                                 |
+| ------------ | ---------------------------------------------------- |
+| `users`      | `users:read`, `users:write`, `users:delete`          |
+| `roles`      | `roles:read`, `roles:write`, `roles:delete`          |
+| `contacts`   | `contacts:read`, `contacts:write`, `contacts:delete` |
+| `settings`   | `settings:read`, `settings:write`                    |
+| `webhooks`   | `webhooks:read`, `webhooks:write`                    |
+| `reports`    | `reports:read`, `reports:write`                      |
+| `security`   | `security:manage`                                    |
+| `finance`    | `finance:read`, `finance:write`                      |
+| `payroll`    | `payroll:read`, `payroll:write`                      |
+| `attendance` | `attendance:read`, `attendance:write`                |
+| `leave`      | `leave:read`, `leave:write`                          |
+| `project`    | `project:read`, `project:write`                      |
+| `task`       | `task:read`, `task:write`                            |
 
 Built-in permissions: `admin` = all keys; `manager` = team/contacts/settings/webhooks/reports/
 attendance/leave/project/task/finance/payroll reads plus core writes; `user` = read access on
@@ -75,28 +75,28 @@ Prefixes: `/api/roles` and `/api/users`. All routes require `Authorization: Bear
 
 ### Roles
 
-| Method   | Path              | Auth            | Description                                     |
-| -------- | ----------------- | --------------- | ----------------------------------------------- |
-| `GET`    | `/api/roles`      | admin, manager  | List roles (built-in + custom), `?active=true`  |
-| `GET`    | `/api/roles/catalog` | admin, manager | Permission catalog used to build roles        |
-| `GET`    | `/api/roles/:ref` | admin, manager  | Get a role by id or name (`admin`, `7`, …)      |
-| `POST`   | `/api/roles`      | admin           | Create a custom role (`201`)                    |
-| `PUT`    | `/api/roles/:ref` | admin           | Update description / permissions / active state |
-| `DELETE` | `/api/roles/:ref` | admin           | Delete a custom role (409 if assigned)          |
+| Method   | Path                 | Auth           | Description                                     |
+| -------- | -------------------- | -------------- | ----------------------------------------------- |
+| `GET`    | `/api/roles`         | admin, manager | List roles (built-in + custom), `?active=true`  |
+| `GET`    | `/api/roles/catalog` | admin, manager | Permission catalog used to build roles          |
+| `GET`    | `/api/roles/:ref`    | admin, manager | Get a role by id or name (`admin`, `7`, …)      |
+| `POST`   | `/api/roles`         | admin          | Create a custom role (`201`)                    |
+| `PUT`    | `/api/roles/:ref`    | admin          | Update description / permissions / active state |
+| `DELETE` | `/api/roles/:ref`    | admin          | Delete a custom role (409 if assigned)          |
 
 ### Users (admin console)
 
-| Method   | Path                         | Auth  | Description                                        |
-| -------- | ---------------------------- | ----- | -------------------------------------------------- |
-| `GET`    | `/api/users`                 | admin, manager | Paginate users                          |
-| `POST`   | `/api/users`                 | admin | Create a user (temporary password if omitted)       |
-| `GET`    | `/api/users/:id`             | admin, manager | Get a user                              |
-| `PUT`    | `/api/users/:id`             | admin | Update profile fields / enum role / active state    |
-| `PATCH`  | `/api/users/:id/active`      | admin | Activate or deactivate a user                       |
-| `PUT`    | `/api/users/:id/role`        | admin | Assign a role (enum name, custom slug, or id)       |
-| `PUT`    | `/api/users/:id/password`    | admin | Reset a user's password (>= 8 chars)                |
-| `DELETE` | `/api/users/:id`             | admin | Delete a user                                       |
-| `PUT`    | `/api/users/password/change` | self  | Change your own password                            |
+| Method   | Path                         | Auth           | Description                                      |
+| -------- | ---------------------------- | -------------- | ------------------------------------------------ |
+| `GET`    | `/api/users`                 | admin, manager | Paginate users                                   |
+| `POST`   | `/api/users`                 | admin          | Create a user (temporary password if omitted)    |
+| `GET`    | `/api/users/:id`             | admin, manager | Get a user                                       |
+| `PUT`    | `/api/users/:id`             | admin          | Update profile fields / enum role / active state |
+| `PATCH`  | `/api/users/:id/active`      | admin          | Activate or deactivate a user                    |
+| `PUT`    | `/api/users/:id/role`        | admin          | Assign a role (enum name, custom slug, or id)    |
+| `PUT`    | `/api/users/:id/password`    | admin          | Reset a user's password (>= 8 chars)             |
+| `DELETE` | `/api/users/:id`             | admin          | Delete a user                                    |
+| `PUT`    | `/api/users/password/change` | self           | Change your own password                         |
 
 Example — create a custom role:
 
@@ -120,19 +120,59 @@ Three queries, seven mutations:
 
 ```graphql
 query {
-  roles { data { id name permissions isActive } meta { totalCount } }
-  role(ref: "manager") { name description permissions }
-  permissionCatalog { module label permissions }   # admin / manager only
+  roles {
+    data {
+      id
+      name
+      permissions
+      isActive
+    }
+    meta {
+      totalCount
+    }
+  }
+  role(ref: "manager") {
+    name
+    description
+    permissions
+  }
+  permissionCatalog {
+    module
+    label
+    permissions
+  } # admin / manager only
 }
 
 mutation {
-  adminCreateUser(firstName: "Jane", lastName: "Doe", email: "jane@acme.com", roleName: "support_lead") { id email role }
-  setUserActive(id: "2", isActive: false) { id isActive }
-  assignUserRole(id: "2", role: "manager") { id role roleId }
-  resetUserPassword(id: "2", newPassword: "hunter2-secure")   # admin only
-  createRole(name: "support_lead", permissions: ["contacts:read", "contacts:write"]) { id name }
-  updateRole(ref: "support_lead", permissions: ["contacts:read"]) { id permissions }
-  deleteRole(ref: "support_lead")                             # admin only
+  adminCreateUser(
+    firstName: "Jane"
+    lastName: "Doe"
+    email: "jane@acme.com"
+    roleName: "support_lead"
+  ) {
+    id
+    email
+    role
+  }
+  setUserActive(id: "2", isActive: false) {
+    id
+    isActive
+  }
+  assignUserRole(id: "2", role: "manager") {
+    id
+    role
+    roleId
+  }
+  resetUserPassword(id: "2", newPassword: "hunter2-secure") # admin only
+  createRole(name: "support_lead", permissions: ["contacts:read", "contacts:write"]) {
+    id
+    name
+  }
+  updateRole(ref: "support_lead", permissions: ["contacts:read"]) {
+    id
+    permissions
+  }
+  deleteRole(ref: "support_lead") # admin only
 }
 ```
 

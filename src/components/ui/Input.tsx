@@ -1,43 +1,57 @@
 import { clsx } from "clsx";
-import { forwardRef, useId, type InputHTMLAttributes } from "react";
+import { forwardRef, useId, type InputHTMLAttributes, type ReactNode } from "react";
 
 export interface InputProps extends InputHTMLAttributes<HTMLInputElement> {
   label?: string;
   error?: string;
+  hint?: string;
+  leading?: ReactNode;
+  containerClassName?: string;
 }
 
 export const Input = forwardRef<HTMLInputElement, InputProps>(function Input(
-  { label, error, className, id, ...rest },
+  { label, error, hint, leading, className, containerClassName, id, required, ...rest },
   ref,
 ) {
   const autoId = useId();
   const inputId = id ?? autoId;
 
   return (
-    <div className="flex flex-col gap-1.5">
+    <div className={clsx("field", containerClassName)}>
       {label ? (
-        <label htmlFor={inputId} className="text-sm font-medium text-slate-300">
+        <label htmlFor={inputId} className="field__label">
           {label}
+          {required ? (
+            <span className="field__required" aria-hidden="true">
+              *
+            </span>
+          ) : null}
         </label>
       ) : null}
-      <input
-        ref={ref}
-        id={inputId}
-        aria-invalid={error ? true : undefined}
-        aria-describedby={error ? `${inputId}-error` : undefined}
-        className={clsx(
-          "h-11 rounded-lg border bg-slate-900 px-3 text-sm text-slate-100 placeholder:text-slate-500",
-          "focus:outline-none focus:ring-2 focus:ring-sky-300",
-          error ? "border-rose-500" : "border-slate-700",
-          className,
-        )}
-        {...rest}
-      />
+      <div className={clsx(leading && "input-group")}>
+        {leading ? <span className="field__leading">{leading}</span> : null}
+        <input
+          ref={ref}
+          id={inputId}
+          required={required}
+          aria-invalid={error ? true : undefined}
+          aria-describedby={error ? `${inputId}-error` : hint ? `${inputId}-hint` : undefined}
+          className={clsx("input", error && "input--invalid", className)}
+          {...rest}
+        />
+      </div>
+      {hint && !error ? (
+        <p id={`${inputId}-hint`} className="field__hint">
+          {hint}
+        </p>
+      ) : null}
       {error ? (
-        <p id={`${inputId}-error`} role="alert" className="text-xs text-rose-400">
+        <p id={`${inputId}-error`} role="alert" className="field__error">
           {error}
         </p>
       ) : null}
     </div>
   );
 });
+
+export default Input;

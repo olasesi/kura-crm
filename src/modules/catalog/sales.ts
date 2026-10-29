@@ -1,0 +1,208 @@
+import { field, type ModuleDef } from "../types";
+
+export const salesModules: ModuleDef[] = [
+  {
+    id: "subscriptions",
+    name: "Subscriptions",
+    group: "sales",
+    kind: "crud",
+    icon: "repeat",
+    description: "Recurring revenue plans, renewals and subscription health.",
+    fields: [
+      field("name", "Subscription", "text", { required: true }),
+      field("customer", "Customer"),
+      field("plan", "Plan", "select", {
+        options: ["Starter", "Growth", "Business", "Enterprise"],
+      }),
+      field("status", "Status", "select", {
+        options: ["Active", "Pending", "Cancelled", "Expired"],
+      }),
+      field("amount", "Monthly amount", "currency"),
+      field("renewalDate", "Renews on", "date", { inTable: false }),
+      field("seats", "Seats", "number", { inTable: false }),
+    ],
+    seed: {
+      names: [
+        "Northwind Growth",
+        "Acme Enterprise",
+        "Globex Business",
+        "Initech Starter",
+        "Umbrella Enterprise",
+        "Hooli Growth",
+        "Cedar & Co Business",
+      ],
+    },
+  },
+  {
+    id: "orders",
+    name: "Orders",
+    group: "sales",
+    kind: "crud",
+    icon: "cart",
+    description: "Sales orders from confirmation through fulfilment.",
+    fields: [
+      field("name", "Order", "text", { required: true }),
+      field("customer", "Customer"),
+      field("status", "Status", "select", {
+        options: ["Pending", "Processing", "Fulfilled", "Cancelled"],
+      }),
+      field("amount", "Amount", "currency"),
+      field("date", "Order date", "date"),
+      field("owner", "Sales owner"),
+      field("notes", "Notes", "textarea", { inTable: false }),
+    ],
+    seed: {
+      names: [
+        "SO-1042 Northwind",
+        "SO-1043 Acme",
+        "SO-1044 Globex",
+        "SO-1045 Initech",
+        "SO-1046 Umbrella",
+        "SO-1047 Hooli",
+      ],
+    },
+  },
+  {
+    id: "proposals",
+    name: "Proposals",
+    group: "sales",
+    kind: "crud",
+    icon: "proposal",
+    description: "Commercial proposals with value, validity and approval status.",
+    fields: [
+      field("name", "Proposal", "text", { required: true }),
+      field("customer", "Customer"),
+      field("status", "Status", "select", {
+        options: ["Draft", "Sent", "Accepted", "Rejected"],
+      }),
+      field("amount", "Value", "currency"),
+      field("validUntil", "Valid until", "date"),
+      field("owner", "Owner"),
+      field("scope", "Scope", "textarea", { inTable: false }),
+    ],
+    seed: {
+      names: [
+        "Northwind platform proposal",
+        "Acme analytics proposal",
+        "Globex payroll proposal",
+        "Initech migration proposal",
+        "Umbrella support proposal",
+        "Hooli integration proposal",
+      ],
+    },
+  },
+  {
+    id: "estimates",
+    name: "Estimates",
+    group: "sales",
+    kind: "crud",
+    icon: "estimate",
+    description: "Itemised estimates that can be converted into invoices.",
+    fields: [
+      field("name", "Estimate", "text", { required: true }),
+      field("customer", "Customer"),
+      field("status", "Status", "select", {
+        options: ["Draft", "Sent", "Accepted", "Expired"],
+      }),
+      field("amount", "Amount", "currency"),
+      field("expiry", "Expires", "date"),
+      field("owner", "Owner"),
+      field("items", "Line items", "textarea", { inTable: false }),
+    ],
+    seed: {
+      names: [
+        "EST-220 Northwind",
+        "EST-221 Acme",
+        "EST-222 Globex",
+        "EST-223 Initech",
+        "EST-224 Umbrella",
+        "EST-225 Hooli",
+      ],
+    },
+  },
+  {
+    id: "invoices",
+    name: "Invoices",
+    group: "sales",
+    kind: "crud",
+    icon: "invoice",
+    description: "Issue invoices, track ageing and reconcile payments.",
+    fields: [
+      field("name", "Invoice", "text", { required: true }),
+      field("customer", "Customer"),
+      field("status", "Status", "select", {
+        options: ["Draft", "Sent", "Paid", "Overdue"],
+      }),
+      field("amount", "Amount", "currency"),
+      field("dueDate", "Due date", "date"),
+      field("date", "Issue date", "date", { inTable: false }),
+      field("notes", "Notes", "textarea", { inTable: false }),
+    ],
+    seed: {
+      names: [
+        "INV-2026-001 Northwind",
+        "INV-2026-002 Acme",
+        "INV-2026-003 Globex",
+        "INV-2026-004 Initech",
+        "INV-2026-005 Umbrella",
+        "INV-2026-006 Hooli",
+      ],
+    },
+  },
+  {
+    id: "payments",
+    name: "Payments",
+    group: "sales",
+    kind: "crud",
+    icon: "payment",
+    description: "Incoming payments matched to invoices and customers.",
+    fields: [
+      field("name", "Payment", "text", { required: true }),
+      field("invoice", "Invoice"),
+      field("customer", "Customer", "text", { inTable: false }),
+      field("method", "Method", "select", {
+        options: ["Bank transfer", "Card", "Cash", "PayPal"],
+      }),
+      field("status", "Status", "select", {
+        options: ["Pending", "Completed", "Failed", "Refunded"],
+      }),
+      field("amount", "Amount", "currency"),
+      field("date", "Received", "date"),
+    ],
+    seed: {
+      names: [
+        "PAY-5501 Northwind",
+        "PAY-5502 Acme",
+        "PAY-5503 Globex",
+        "PAY-5504 Initech",
+        "PAY-5505 Umbrella",
+        "PAY-5506 Hooli",
+      ],
+    },
+  },
+  {
+    id: "credit-notes",
+    name: "Credit notes",
+    group: "sales",
+    kind: "crud",
+    icon: "credit",
+    description: "Adjust invoices with credit notes and keep receivables accurate.",
+    fields: [
+      field("name", "Credit note", "text", { required: true }),
+      field("customer", "Customer"),
+      field("status", "Status", "select", { options: ["Draft", "Issued", "Applied"] }),
+      field("amount", "Amount", "currency"),
+      field("date", "Issued", "date"),
+      field("reason", "Reason", "textarea", { inTable: false }),
+    ],
+    seed: {
+      names: [
+        "CN-101 Northwind",
+        "CN-102 Acme",
+        "CN-103 Globex",
+        "CN-104 Initech",
+        "CN-105 Umbrella",
+      ],
+    },
+  },
+];

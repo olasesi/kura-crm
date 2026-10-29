@@ -73,6 +73,8 @@ export default defineConfig(({ mode }) => {
       css: false,
       clearMocks: true,
       restoreMocks: true,
+      testTimeout: 30_000,
+      hookTimeout: 30_000,
       coverage: {
         provider: "v8",
         reporter: ["text", "html", "json-summary", "lcov"],

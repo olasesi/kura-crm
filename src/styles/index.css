@@ -1,21 +1,26 @@
+/* ==========================================================================
+   Kura CRM — global stylesheet entry point.
+   Tailwind is imported for its reset + a small number of opt-in utilities;
+   all application styling is authored in the BEM files below.
+   ========================================================================== */
+
 @import "tailwindcss";
+
+@import "./tokens.css";
+@import "./themes.css";
+@import "./base.css";
+@import "./components/form.css";
+@import "./components/button.css";
+@import "./components/card.css";
+@import "./components/table.css";
+@import "./components/feedback.css";
+@import "./layout.css";
+@import "./dashboard.css";
+@import "./modules.css";
+@import "./special.css";
 
 @theme {
   --font-sans:
     "Inter", ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, Helvetica, Arial,
     sans-serif;
-}
-
-@layer base {
-  html {
-    @apply antialiased;
-  }
-
-  body {
-    @apply bg-slate-950 text-slate-100;
-  }
-
-  ::selection {
-    @apply bg-sky-500/30;
-  }
 }

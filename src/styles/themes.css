@@ -1,0 +1,202 @@
+/* ==========================================================================
+   Themes
+   Two colour modes (light / dark) and interchangeable accent palettes.
+   Activated by data attributes on <html>:
+     data-color-mode="light|dark"
+     data-accent="indigo|emerald|amber|rose|violet|ocean"
+     data-design="studio|compact|analytics"
+   ========================================================================== */
+
+:root,
+[data-color-mode="light"] {
+  color-scheme: light;
+
+  --canvas: #f4f6fb;
+  --canvas-alt: #eaeef7;
+  --surface: #ffffff;
+  --surface-raised: #ffffff;
+  --surface-muted: #f8fafc;
+  --surface-sunken: #eff3f9;
+  --surface-inverse: #111827;
+
+  --border: #dde3ee;
+  --border-strong: #c6cfdf;
+  --border-subtle: #e9edf5;
+
+  --text-primary: #172033;
+  --text-secondary: #4b5670;
+  --text-muted: #7b869e;
+  --text-inverse: #f8fafc;
+
+  --accent: #4f46e5;
+  --accent-strong: #4338ca;
+  --accent-soft: #eef0ff;
+  --accent-ring: rgb(79 70 229 / 28%);
+  --accent-contrast: #ffffff;
+
+  --sidebar-bg: #ffffff;
+  --sidebar-text: #44506a;
+  --sidebar-muted: #8892a8;
+  --sidebar-active-bg: var(--accent-soft);
+  --sidebar-active-text: var(--accent-strong);
+  --sidebar-border: var(--border-subtle);
+
+  --topbar-bg: rgb(255 255 255 / 82%);
+  --chart-grid: #e6ebf4;
+  --overlay: rgb(15 23 42 / 48%);
+  --hover-bg: #f1f4fa;
+  --selection-bg: rgb(79 70 229 / 16%);
+
+  --shadow-card: var(--shadow-sm);
+}
+
+[data-color-mode="dark"] {
+  color-scheme: dark;
+
+  --canvas: #080d1a;
+  --canvas-alt: #0c1324;
+  --surface: #101828;
+  --surface-raised: #141f33;
+  --surface-muted: #0e1728;
+  --surface-sunken: #0a1220;
+  --surface-inverse: #f8fafc;
+
+  --border: #22304a;
+  --border-strong: #2f4160;
+  --border-subtle: #1a2740;
+
+  --text-primary: #eef2fb;
+  --text-secondary: #a9b6ce;
+  --text-muted: #7686a3;
+  --text-inverse: #0b1020;
+
+  --accent: #7c7cf8;
+  --accent-strong: #9c9cff;
+  --accent-soft: rgb(99 102 241 / 16%);
+  --accent-ring: rgb(124 124 248 / 40%);
+  --accent-contrast: #0b1020;
+
+  --sidebar-bg: #0b1222;
+  --sidebar-text: #aab7d0;
+  --sidebar-muted: #6d7c99;
+  --sidebar-active-bg: rgb(124 124 248 / 16%);
+  --sidebar-active-text: #c7c7ff;
+  --sidebar-border: #1a2740;
+
+  --topbar-bg: rgb(11 18 34 / 78%);
+  --chart-grid: #1d2b45;
+  --overlay: rgb(3 7 18 / 68%);
+  --hover-bg: #162136;
+  --selection-bg: rgb(124 124 248 / 28%);
+
+  --shadow-card: 0 1px 2px rgb(0 0 0 / 40%);
+
+  --success-soft: rgb(22 163 74 / 18%);
+  --warning-soft: rgb(217 119 6 / 18%);
+  --danger-soft: rgb(220 38 38 / 18%);
+  --info-soft: rgb(2 132 199 / 18%);
+}
+
+/* ---------- Accent palettes ---------- */
+[data-accent="indigo"] {
+  --accent: #4f46e5;
+  --accent-strong: #4338ca;
+  --accent-soft: #eef0ff;
+  --accent-ring: rgb(79 70 229 / 28%);
+}
+[data-color-mode="dark"][data-accent="indigo"] {
+  --accent: #7c7cf8;
+  --accent-strong: #9c9cff;
+  --accent-soft: rgb(99 102 241 / 16%);
+  --accent-ring: rgb(124 124 248 / 40%);
+}
+
+[data-accent="emerald"] {
+  --accent: #059669;
+  --accent-strong: #047857;
+  --accent-soft: #e7f8f1;
+  --accent-ring: rgb(5 150 105 / 28%);
+}
+[data-color-mode="dark"][data-accent="emerald"] {
+  --accent: #34d399;
+  --accent-strong: #6ee7b7;
+  --accent-soft: rgb(16 185 129 / 16%);
+  --accent-ring: rgb(52 211 153 / 36%);
+}
+
+[data-accent="amber"] {
+  --accent: #d97706;
+  --accent-strong: #b45309;
+  --accent-soft: #fef3e2;
+  --accent-ring: rgb(217 119 6 / 28%);
+}
+[data-color-mode="dark"][data-accent="amber"] {
+  --accent: #fbbf24;
+  --accent-strong: #fcd34d;
+  --accent-soft: rgb(245 158 11 / 16%);
+  --accent-ring: rgb(251 191 36 / 36%);
+}
+
+[data-accent="rose"] {
+  --accent: #e11d48;
+  --accent-strong: #be123c;
+  --accent-soft: #fdeef2;
+  --accent-ring: rgb(225 29 72 / 28%);
+}
+[data-color-mode="dark"][data-accent="rose"] {
+  --accent: #fb7185;
+  --accent-strong: #fda4af;
+  --accent-soft: rgb(244 63 94 / 16%);
+  --accent-ring: rgb(251 113 133 / 36%);
+}
+
+[data-accent="violet"] {
+  --accent: #7c3aed;
+  --accent-strong: #6d28d9;
+  --accent-soft: #f2ecff;
+  --accent-ring: rgb(124 58 237 / 28%);
+}
+[data-color-mode="dark"][data-accent="violet"] {
+  --accent: #a78bfa;
+  --accent-strong: #c4b5fd;
+  --accent-soft: rgb(139 92 246 / 16%);
+  --accent-ring: rgb(167 139 250 / 36%);
+}
+
+[data-accent="ocean"] {
+  --accent: #0284c7;
+  --accent-strong: #0369a1;
+  --accent-soft: #e6f5fd;
+  --accent-ring: rgb(2 132 199 / 28%);
+}
+[data-color-mode="dark"][data-accent="ocean"] {
+  --accent: #38bdf8;
+  --accent-strong: #7dd3fc;
+  --accent-soft: rgb(14 165 233 / 16%);
+  --accent-ring: rgb(56 189 248 / 36%);
+}
+
+/* ---------- Dashboard designs ---------- */
+[data-design="studio"] {
+  --widget-radius: var(--radius-lg);
+  --widget-padding: var(--space-5);
+  --widget-shadow: var(--shadow-md);
+  --widget-gap: var(--space-5);
+  --dashboard-columns: 12;
+}
+
+[data-design="compact"] {
+  --widget-radius: var(--radius-sm);
+  --widget-padding: var(--space-3);
+  --widget-shadow: none;
+  --widget-gap: var(--space-2);
+  --dashboard-columns: 16;
+}
+
+[data-design="analytics"] {
+  --widget-radius: var(--radius-xs);
+  --widget-padding: var(--space-6);
+  --widget-shadow: var(--shadow-lg);
+  --widget-gap: var(--space-6);
+  --dashboard-columns: 12;
+}

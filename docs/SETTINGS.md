@@ -37,12 +37,12 @@ One row per (`group`, `key`, `userId`); `userId = 0` means "global/company scope
 
 All groups live in `SETTING_GROUPS` (`api/src/services/settingService.ts`). Each entry declares:
 
-| Field         | Meaning                                                     |
-| ------------- | ----------------------------------------------------------- |
-| `group`       | Slug, e.g. `company`, `app`, `payroll`                      |
-| `description` | Human-readable purpose                                      |
-| `scope`       | `global`, `user`, or `both`                                 |
-| `sensitive`   | Non-admins get `403` on reads (payment/secret groups)       |
+| Field         | Meaning                                               |
+| ------------- | ----------------------------------------------------- |
+| `group`       | Slug, e.g. `company`, `app`, `payroll`                |
+| `description` | Human-readable purpose                                |
+| `scope`       | `global`, `user`, or `both`                           |
+| `sensitive`   | Non-admins get `403` on reads (payment/secret groups) |
 
 44 groups are shipped today: `company`, `business_address`, `downloads`, `app`, `profile`,
 `notification`, `currency`, `payment_credentials`, `finance`, `contract`, `tax`, `ticket`,
@@ -68,16 +68,16 @@ Ungrouped/untyped keys still pass the group-name existence check.
 
 Prefix: `/api/settings`. All routes require `Authorization: Bearer <token>`.
 
-| Method   | Path                          | Auth   | Description                                        |
-| -------- | ----------------------------- | ------ | -------------------------------------------------- |
-| `GET`    | `/api/settings/groups`        | user   | List group metadata (description, scope, sensitive) |
-| `GET`    | `/api/settings`               | admin  | Aggregate of every group (global)                  |
-| `GET`    | `/api/settings/:group`        | user   | Global settings for a group (redacted if non-admin, `403` on sensitive groups) |
-| `PUT`    | `/api/settings/:group`        | admin  | Upsert global settings for a group                 |
-| `DELETE` | `/api/settings/:group`        | admin  | Reset a group to defaults                          |
-| `DELETE` | `/api/settings/:group/:key`   | admin  | Delete one key (falls back to default)             |
-| `GET`    | `/api/settings/:group/me`     | user   | The caller's user-scoped settings for a group      |
-| `PUT`    | `/api/settings/:group/me`     | user   | Update the caller's user-scoped settings (`403` on global groups) |
+| Method   | Path                        | Auth  | Description                                                                    |
+| -------- | --------------------------- | ----- | ------------------------------------------------------------------------------ |
+| `GET`    | `/api/settings/groups`      | user  | List group metadata (description, scope, sensitive)                            |
+| `GET`    | `/api/settings`             | admin | Aggregate of every group (global)                                              |
+| `GET`    | `/api/settings/:group`      | user  | Global settings for a group (redacted if non-admin, `403` on sensitive groups) |
+| `PUT`    | `/api/settings/:group`      | admin | Upsert global settings for a group                                             |
+| `DELETE` | `/api/settings/:group`      | admin | Reset a group to defaults                                                      |
+| `DELETE` | `/api/settings/:group/:key` | admin | Delete one key (falls back to default)                                         |
+| `GET`    | `/api/settings/:group/me`   | user  | The caller's user-scoped settings for a group                                  |
+| `PUT`    | `/api/settings/:group/me`   | user  | Update the caller's user-scoped settings (`403` on global groups)              |
 
 Example — update company name:
 
@@ -100,15 +100,32 @@ Three queries, three mutations:
 
 ```graphql
 query {
-  settingGroups { group description scope sensitive }
-  settings(group: "app") { key value }          # admin sees full, sensitive groups 403 non-admins
-  mySettings(group: "profile") { key value }
+  settingGroups {
+    group
+    description
+    scope
+    sensitive
+  }
+  settings(group: "app") {
+    key
+    value
+  } # admin sees full, sensitive groups 403 non-admins
+  mySettings(group: "profile") {
+    key
+    value
+  }
 }
 
 mutation {
-  updateSettings(group: "app", input: [{ key: "timeFormat", value: "\"24h\"" }]) { key value }
-  updateMySettings(group: "profile", input: [{ key: "language", value: "\"en\"" }]) { key value }
-  resetSettings(group: "currency")              # admin only
+  updateSettings(group: "app", input: [{ key: "timeFormat", value: "\"24h\"" }]) {
+    key
+    value
+  }
+  updateMySettings(group: "profile", input: [{ key: "language", value: "\"en\"" }]) {
+    key
+    value
+  }
+  resetSettings(group: "currency") # admin only
 }
 ```
 

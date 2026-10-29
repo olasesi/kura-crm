@@ -5,7 +5,9 @@ import { ErrorBoundary, type FallbackProps } from "react-error-boundary";
 import { BrowserRouter } from "react-router-dom";
 
 import { env } from "@/config/env";
+import { I18nProvider } from "@/i18n/I18nProvider";
 import { logger } from "@/lib/logger";
+import { ThemeProvider } from "@/theme/ThemeProvider";
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -18,18 +20,11 @@ const queryClient = new QueryClient({
 });
 
 const ErrorFallback = ({ error, resetErrorBoundary }: FallbackProps) => (
-  <main
-    role="alert"
-    className="grid min-h-screen place-items-center bg-slate-950 p-8 text-center text-white"
-  >
-    <div className="max-w-md space-y-4">
-      <h1 className="text-2xl font-bold">Something went wrong</h1>
-      <p className="break-words text-sm text-slate-400">{error.message}</p>
-      <button
-        type="button"
-        onClick={resetErrorBoundary}
-        className="inline-flex h-11 items-center rounded-lg bg-sky-500 px-6 font-semibold text-white transition-colors hover:bg-sky-400"
-      >
+  <main role="alert" className="app-error">
+    <div className="app-error__panel">
+      <h1 className="app-error__title">Something went wrong</h1>
+      <p className="app-error__text">{error.message}</p>
+      <button type="button" onClick={resetErrorBoundary} className="btn">
         Reload page
       </button>
     </div>
@@ -48,11 +43,15 @@ interface AppProvidersProps {
 }
 
 export const AppProviders = ({ children }: AppProvidersProps) => (
-  <QueryClientProvider client={queryClient}>
-    <BrowserRouter>
-      <ErrorBoundary FallbackComponent={ErrorFallback} onError={handleError}>
-        {children}
-      </ErrorBoundary>
-    </BrowserRouter>
-  </QueryClientProvider>
+  <I18nProvider>
+    <ThemeProvider>
+      <QueryClientProvider client={queryClient}>
+        <BrowserRouter>
+          <ErrorBoundary FallbackComponent={ErrorFallback} onError={handleError}>
+            {children}
+          </ErrorBoundary>
+        </BrowserRouter>
+      </QueryClientProvider>
+    </ThemeProvider>
+  </I18nProvider>
 );

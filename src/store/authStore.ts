@@ -11,6 +11,7 @@ interface AuthState {
   refreshToken: string | null;
   isAuthenticated: boolean;
   login: (email: string, password: string) => Promise<void>;
+  loginDemo: () => void;
   logout: () => Promise<void>;
   setTokens: (tokens: TokenPair) => void;
   setUser: (user: UserProfile) => void;
@@ -46,6 +47,22 @@ export const useAuthStore = create<AuthState>()(
           isAuthenticated: true,
         });
         logger.info(`User logged in: ${user.email}`);
+      },
+
+      loginDemo: () => {
+        set({
+          user: {
+            id: "demo-admin",
+            firstName: "Ada",
+            lastName: "Lovelace",
+            email: "ada@kura-crm.com",
+            role: "Admin",
+          },
+          accessToken: "demo-access-token",
+          refreshToken: "demo-refresh-token",
+          isAuthenticated: true,
+        });
+        logger.info("Demo workspace opened.");
       },
 
       logout: async () => {

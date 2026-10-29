@@ -1,4 +1,4 @@
-# Kura CRM Web
+﻿# Kura CRM Web
 
 Enterprise-grade React frontend for Kura CRM. TypeScript, Vite, Tailwind CSS, with testing, observability, security, and CI/CD baked in. The backend lives in [`api/`](./api).
 
@@ -30,9 +30,10 @@ Requires Node.js 20+ (see `.nvmrc`). The API runs on port 5000 — see `api/.env
 
 - **Framework**: React 19 + TypeScript, Vite 6
 - **Routing**: React Router 7 with route-level lazy loading
-- **Data**: TanStack Query (server state), Zustand (client state)
+- **Data**: TanStack Query (server state), Zustand (client state), schema-driven module repository
 - **Forms**: React Hook Form + Zod validation
-- **Styling**: Tailwind CSS 4
+- **Styling**: external BEM CSS (`src/styles/`) with design tokens; Tailwind only for incidental utilities
+- **UI features**: 98 business modules, role dashboards with draggable widgets, 4 languages, 3 dashboard designs
 - **Testing**: Vitest + React Testing Library + Playwright
 - **Observability**: Sentry (errors, tracing, replay), web-vitals
 - **Deployment**: Docker + nginx, Kubernetes, GitHub Actions / Jenkins
@@ -59,5 +60,6 @@ Requires Node.js 20+ (see `.nvmrc`). The API runs on port 5000 — see `api/.env
 
 ## Documentation
 
-- [Architecture](./docs/ARCHITECTURE.md) — scaling, security, observability, code conventions
-- [Deployment](./docs/DEPLOYMENT.md) — Docker, Kubernetes, CI/CD pipelines
+- [Architecture](./docs/ARCHITECTURE.md) - scaling, security, observability, frontend feature architecture
+- [Module catalog](./docs/MODULES.md) - every business module and its kind
+- [Deployment](./docs/DEPLOYMENT.md) - Docker, Kubernetes, CI/CD pipelines

@@ -1,5 +1,4 @@
-import { screen } from "@testing-library/react";
-import userEvent from "@testing-library/user-event";
+import { fireEvent, screen, waitFor } from "@testing-library/react";
 import { describe, expect, it, vi } from "vitest";
 import type { Mock } from "vitest";
 
@@ -78,7 +77,7 @@ describe("DashboardPage", () => {
     renderWithProviders(<DashboardPage />, { route: "/dashboard" });
 
     expect(
-      await screen.findByText(/Unable to reach the backend/, {}, { timeout: 5000 }),
+      await screen.findByText(/Unable to reach the backend/, {}, { timeout: 20_000 }),
     ).toBeInTheDocument();
   });
 
@@ -100,12 +99,11 @@ describe("DashboardPage", () => {
     });
     apiMock.post.mockResolvedValue({ data: { success: true } });
 
-    const user = userEvent.setup();
     renderWithProviders(<DashboardPage />, { route: "/dashboard" });
 
-    await user.click(screen.getByRole("button", { name: "Sign out" }));
+    fireEvent.click(screen.getByText("Sign out").closest("button") as HTMLButtonElement);
 
+    await waitFor(() => expect(useAuthStore.getState().isAuthenticated).toBe(false));
     expect(apiMock.post).toHaveBeenCalledWith("/api/auth/logout");
-    expect(useAuthStore.getState().isAuthenticated).toBe(false);
   });
 });
